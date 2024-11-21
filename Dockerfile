@@ -1,7 +1,17 @@
-FROM nginx:1.10.1-alpine
+FROM python:3.11
 
-COPY payroll_app/templates/payroll_app/ /usr/share/nginx/html
+ENV PYTHONWRITEBYTHECODE=1
+ENV PYTHONUNBUFFERED=1
 
-EXPOSE 80
+WORKDIR /app
 
-CMD ["nginx", "-g", "daemon off;"]
+COPY requirements.txt .
+
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
+
+COPY . .
+
+EXPOSE 8000
+
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
