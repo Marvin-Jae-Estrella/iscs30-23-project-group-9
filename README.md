@@ -29,4 +29,13 @@ A. Building of docker image for Lazapee
      Notes:
      - python environment is used as the application uses django
      - exposed port can be changed based on user needs
-  2. 
+  2. Create a .dockerignore. Input the following:
+     ----------------------------------------------------------------
+     .env
+     venv/
+     Dockerfile
+     .DS_Store
+     ----------------------------------------------------------------
+     Notes:
+     - a virtual environment was used to develop the app so for safety and future proofing, venv files are ignored
+  3. 
