@@ -38,4 +38,96 @@ A. Building of docker image for Lazapee
      ----------------------------------------------------------------
      Notes:
      - a virtual environment was used to develop the app so for safety and future proofing, venv files are ignored
-  3. 
+  3. Pull the Docker Image into your local machine
+     ----------------------------------------------------------------
+     docker pull marvinjaeestrella/iscs30.23-xw_project_group_9
+  4. Create Kubernetes Manifests by creating kubernetes-manifests in the project directory. These .yaml files were created in this folder with these in each file:
+     ----------------------------------------------------------------
+     deployment.yaml
+
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: my-app
+      spec:
+        replicas: 2
+        selector:
+          matchLabels:
+            app: my-app
+        template:
+          metadata:
+            labels:
+              app: my-app
+          spec:
+            containers:
+            - name: my-app-container
+              image: marvinjaeestrella/iscs30.23-xw_project_group_9
+              ports:
+              - containerPort: 80
+
+     service.yaml
+
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: my-app-service
+      spec:
+        selector:
+          app: my-app
+        ports:
+        - protocol: TCP
+          port: 80
+          targetPort: 80
+        type: NodePort
+
+     ingress.yaml
+
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: my-app-ingress
+        annotations:
+          kubernetes.io/ingress.class: "nginx"
+      spec:
+        rules:
+        - host: localhost
+          http:
+            paths:
+            - path: /
+              pathType: Prefix
+              backend:
+                service:
+                  name: my-app-service
+                  port:
+                    number: 80
+
+     hpa.yaml
+
+      apiVersion: autoscaling/v2
+      kind: HorizontalPodAutoscaler
+      metadata:
+        name: my-app-hpa
+      spec:
+        scaleTargetRef:
+          apiVersion: apps/v1
+          kind: Deployment
+          name: my-app
+        minReplicas: 1
+        maxReplicas: 5
+        metrics:
+        - type: Resource
+          resource:
+            name: cpu
+            target:
+              type: Utilization
+              averageUtilization: 50
+
+      5. Deploy the Manifests by navigating to kubernetes-manifests folder and input the following:
+      ----------------------------------------------------------------
+        kubectl apply -f . 
+
+      6. Verify Deployment by check the status of the pods, services, and other resources through inputting the following:
+      ----------------------------------------------------------------
+        kubectl get pods
+        kubectl get svc
+        kubectl get ingress
